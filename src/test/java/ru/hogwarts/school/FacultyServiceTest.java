@@ -3,15 +3,15 @@ package ru.hogwarts.school;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import ru.hogwarts.school.model.Faculty;
-import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.repositories.FacultyRepository;
 import ru.hogwarts.school.service.FacultyService;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class FacultyServiceTest {
     Faculty faculty;
-    FacultyService facultyServiceTest = new FacultyService();
+    FacultyRepository facultyRepository;
+    FacultyService facultyServiceTest = new FacultyService(facultyRepository);
     Faculty facultyOne = new Faculty(1L, "Ron", "Rad");
     Faculty facultyTwo = new Faculty(2L, "Germinal", "black");
     List<Faculty> listStudent = new ArrayList<>(List.of(facultyOne, facultyTwo));
@@ -19,8 +19,8 @@ public class FacultyServiceTest {
     @Test
     public void addTest(){
 
-        facultyServiceTest.addFaculty(facultyOne);
-        facultyServiceTest.addFaculty(facultyTwo);
+        facultyServiceTest.createFaculty(facultyOne);
+        facultyServiceTest.createFaculty(facultyTwo);
         int expected = 2;
         int actual = facultyServiceTest.getAllFaculty().size();
         Assertions.assertEquals(expected, actual);
@@ -28,12 +28,12 @@ public class FacultyServiceTest {
     }
     @Test
     public void changeStudentTest(){
-        facultyServiceTest.addFaculty(facultyOne);
-        facultyServiceTest.addFaculty(facultyTwo);
+        facultyServiceTest.createFaculty(facultyOne);
+        facultyServiceTest.createFaculty(facultyTwo);
         Faculty actualStudent = new Faculty(1L, "Garri", "white");
 
         List<Faculty> actualList = new ArrayList<>(List.of(actualStudent, facultyTwo));
-        facultyServiceTest.changeFaculty(actualStudent);
+        facultyServiceTest.createFaculty(actualStudent);
 
         org.assertj.core.api.Assertions.assertThat(facultyServiceTest.getAllFaculty().containsAll(actualList));
     }
@@ -47,16 +47,16 @@ public class FacultyServiceTest {
 //    }
     @Test
     public void getStudentTest(){
-        facultyServiceTest.addFaculty(facultyOne);
-        facultyServiceTest.addFaculty(facultyTwo);
+        facultyServiceTest.createFaculty(facultyOne);
+        facultyServiceTest.createFaculty(facultyTwo);
         Faculty actual = facultyOne;
         Faculty expected = facultyServiceTest.getFaculty(1);
         Assertions.assertEquals(expected, actual);
     }
     @Test
     public void removeStudentTest(){
-        facultyServiceTest.addFaculty(facultyOne);
-        facultyServiceTest.addFaculty(facultyTwo);
+        facultyServiceTest.createFaculty(facultyOne);
+        facultyServiceTest.createFaculty(facultyTwo);
         Assertions.assertEquals(facultyServiceTest.removeFaculty(1), facultyOne);
 
         int expected = 1;
@@ -67,21 +67,21 @@ public class FacultyServiceTest {
     }
     @Test
     public void getAllStudentTest(){
-        facultyServiceTest.addFaculty(facultyOne);
-        facultyServiceTest.addFaculty(facultyTwo);
+        facultyServiceTest.createFaculty(facultyOne);
+        facultyServiceTest.createFaculty(facultyTwo);
 
         org.assertj.core.api.Assertions.assertThat(facultyServiceTest.getAllFaculty().containsAll(listStudent));
         Assertions.assertEquals(facultyServiceTest.getAllFaculty().size(), listStudent.size());
     }
-    @Test
-    public void searchForStudentsByAgeTest(){
-        facultyServiceTest.addFaculty(facultyOne);
-        facultyServiceTest.addFaculty(facultyTwo);
-        List<Faculty> expected = new ArrayList<>(List.of(facultyOne));
-        List<Faculty> actual = (List<Faculty>) facultyServiceTest.searchForStudentsByColor("Rad");
-        Assertions.assertEquals(expected, actual);
-
-    }
+//    @Test
+//    public void searchForStudentsByAgeTest(){
+//        facultyServiceTest.createFaculty(facultyOne);
+//        facultyServiceTest.createFaculty(facultyTwo);
+//        List<Faculty> expected = new ArrayList<>(List.of(facultyOne));
+//        List<Faculty> actual = (List<Faculty>) facultyServiceTest.searchForStudentsByColor("Rad");
+//        Assertions.assertEquals(expected, actual);
+//
+//    }
 
 
 }

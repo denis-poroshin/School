@@ -8,7 +8,7 @@ import ru.hogwarts.school.service.FacultyService;
 import java.util.Collection;
 
 @RestController
-@RequestMapping("faculty")
+@RequestMapping("/faculty")
 public class FacultyController {
     private final FacultyService facultyService;
 
@@ -17,17 +17,17 @@ public class FacultyController {
     }
     @PostMapping
     public Faculty addFaculty(@RequestBody Faculty faculty){
-        return facultyService.addFaculty(faculty);
+        return facultyService.createFaculty(faculty);
     }
-    @PutMapping
-    public Faculty changeFaculty(@RequestBody Faculty faculty){
-        return facultyService.changeFaculty(faculty);
+    @PutMapping("/{id}")
+    public void changeFaculty(@PathVariable long id, @RequestBody Faculty faculty){
+        facultyService.updateFaculty(id, faculty);
     }
-    @GetMapping("get/{id}")
+    @GetMapping("/{id}")
     public Faculty getFaculty(@PathVariable long id){
         return facultyService.getFaculty(id);
     }
-    @DeleteMapping("remove/{id}")
+    @DeleteMapping("/{id}")
     public Faculty removeFaculty(@PathVariable long id){
         return facultyService.removeFaculty(id);
     }
@@ -35,8 +35,8 @@ public class FacultyController {
     public Collection<Faculty> getAllFaculty(){
         return facultyService.getAllFaculty();
     }
-    @GetMapping("color/{color}")
-    public Collection<Faculty> searchForStudentsByColor(@PathVariable String color){
-        return facultyService.searchForStudentsByColor(color);
-    }
+//    @GetMapping("color/{color}")
+//    public Collection<Faculty> searchForStudentsByColor(@PathVariable String color){
+//        return facultyService.searchForStudentsByColor(color);
+//    }
 }

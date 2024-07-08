@@ -18,17 +18,17 @@ public class StudentController {
     }
     @PostMapping
     public Student addStudent(@RequestBody Student student){
-        return studentService.addStudent(student);
+        return studentService.createStudent(student);
     }
-    @PutMapping
-    public Student changeStudent(@RequestBody Student student){
-        return studentService.changeStudent(student);
+    @PutMapping("/{id}")
+    public void update(@PathVariable long id, @RequestBody Student student){
+        studentService.updateStudent(id,student);
     }
-    @GetMapping("get/{id}")
+    @GetMapping("/{id}")
     public Student getStudent(@PathVariable Long id){
         return studentService.getStudent(id);
     }
-    @DeleteMapping("remove{id}")
+    @DeleteMapping("/{id}")
     public Student removeStudent(@PathVariable Long id){
         return studentService.removeStudent(id);
     }
@@ -36,8 +36,8 @@ public class StudentController {
     public Collection<Student> getAllStudent(){
         return studentService.getAllStudent();
     }
-    @GetMapping("age/{age}")
-    public Collection<Student> searchForStudentsByColor(@PathVariable int age){
-        return studentService.searchForStudentsByAge(age);
-    }
+//    @GetMapping("age/{age}")
+//    public Collection<Student> searchForStudentsByColor(@PathVariable int age){
+//        return studentService.searchForStudentsByAge(age);
+//    }
 }
