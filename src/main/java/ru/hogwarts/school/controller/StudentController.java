@@ -36,8 +36,8 @@ public class StudentController {
     public Collection<Student> getAllStudent(){
         return studentService.getAllStudent();
     }
-//    @GetMapping("age/{age}")
-//    public Collection<Student> searchForStudentsByColor(@PathVariable int age){
-//        return studentService.searchForStudentsByAge(age);
-//    }
+    @GetMapping("/age")
+    public Collection<Student> searchForStudentsByColor(@RequestParam("age") int age){
+        return studentService.searchForStudentsByAge(age);
+    }
 }

@@ -24,10 +24,11 @@ public class FacultyService {
         return facultyRepository.save(faculty);
     }
     public void updateFaculty(long id, Faculty faculty){
-        facultyRepository.findById(id).orElseThrow(
+        Faculty newFaculty = facultyRepository.findById(id).orElseThrow(
                 () -> new FacultyNotFoundException(id));
-        faculty.setId(id);
-        facultyRepository.save(faculty);
+        newFaculty.setName(faculty.getName());
+        newFaculty.setColor(faculty.getColor());
+        facultyRepository.save(newFaculty);
     }
     public Faculty getFaculty(long id){
         return facultyRepository.findById(id).orElseThrow(
@@ -37,18 +38,16 @@ public class FacultyService {
         Faculty remoteFaculty = facultyRepository.findById(id).orElseThrow(
                 () -> new FacultyNotFoundException(id));
 
-        facultyRepository.deleteById(id);
+        facultyRepository.delete(remoteFaculty);
         return remoteFaculty;
 
     }
     public Collection<Faculty> getAllFaculty(){
         return Collections.unmodifiableCollection(facultyRepository.findAll()); // создаст неизменяемую копию мапы
     }
-//    public Collection<Faculty> searchForStudentsByColor(String color){
-//        return getAllFaculty().stream()
-//                .filter(st -> st.getColor().equals(color))
-//                .collect(Collectors.toList());
-//    }
+    public Collection<Faculty> searchForStudentsByColor(String color){
+        return facultyRepository.findAllByColor(color);
+    }
 
 
 

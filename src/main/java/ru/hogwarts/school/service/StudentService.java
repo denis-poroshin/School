@@ -27,10 +27,11 @@ public class StudentService {
         return studentRepository.save(student);
     }
     public void updateStudent(long id, Student student){
-        studentRepository.findById(id).orElseThrow(
-                () -> new StudentNotFoundException(id));
-        student.setId(id);
-        studentRepository.save(student);
+        Student newStudent = studentRepository.findById(id).orElseThrow(
+                () -> new FacultyNotFoundException(id));
+        newStudent.setName(student.getName());
+        newStudent.setAge(student.getAge());
+        studentRepository.save(newStudent);
     }
     public Student getStudent(long id){
         return studentRepository.findById(id).orElseThrow(
@@ -39,17 +40,14 @@ public class StudentService {
     public Student removeStudent(long id){
         Student remoteStudent = studentRepository.findById(id).orElseThrow(
                 () -> new StudentNotFoundException(id));
-
-        studentRepository.deleteById(id);
+        studentRepository.delete(remoteStudent);
         return remoteStudent;
 
     }
     public Collection<Student> getAllStudent(){
         return Collections.unmodifiableCollection(studentRepository.findAll()); // создаст неизменяемую копию мапы
     }
-//    public Collection<Student> searchForStudentsByAge(int age){
-//        return getAllStudent().stream()
-//                .filter(st -> st.getAge() == age)
-//                .collect(Collectors.toList());
-//    }
+    public Collection<Student> searchForStudentsByAge(int age){
+        return studentRepository.findAllByAge(age);
+    }
 }
