@@ -6,20 +6,20 @@ import ru.hogwarts.school.exception.FacultyNotFoundException;
 import ru.hogwarts.school.exception.StudentNotFoundException;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.repositories.FacultyRepository;
 import ru.hogwarts.school.repositories.StudentRepository;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 @Service
 public class StudentService {
     private final StudentRepository studentRepository;
+    private final FacultyRepository facultyRepository;
 
-    public StudentService(StudentRepository studentRepository) {
+    public StudentService(StudentRepository studentRepository, FacultyRepository facultyRepository) {
         this.studentRepository = studentRepository;
+        this.facultyRepository = facultyRepository;
     }
 
 
@@ -46,6 +46,13 @@ public class StudentService {
     }
     public Collection<Student> getAllStudent(){
         return Collections.unmodifiableCollection(studentRepository.findAll()); // создаст неизменяемую копию мапы
+    }
+    public Collection<Student> findByAgeBetween(int minAge, int maxAge){
+        return studentRepository.findByAgeBetween(minAge, maxAge);
+    }
+    public Faculty searchForFacultyByStudentId(long id){
+        return facultyRepository.findById(id).orElseThrow(
+                () -> new FacultyNotFoundException(id));
     }
     public Collection<Student> searchForStudentsByAge(int age){
         return studentRepository.findAllByAge(age);

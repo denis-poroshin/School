@@ -7,6 +7,7 @@ import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.StudentService;
 
 import java.util.Collection;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/student")
@@ -36,8 +37,18 @@ public class StudentController {
     public Collection<Student> getAllStudent(){
         return studentService.getAllStudent();
     }
-    @GetMapping("/age")
+    @GetMapping("/")
     public Collection<Student> searchForStudentsByColor(@RequestParam("age") int age){
         return studentService.searchForStudentsByAge(age);
     }
+    @GetMapping("/age/range")
+    public Collection<Student> findStudentsByAgeBetween(@RequestParam("minAge") int minAge,
+                                                        @RequestParam("maxAge") int maxAge){
+        return studentService.findByAgeBetween(minAge, maxAge);
+    }
+    @GetMapping("/faculty/{id}")
+    public Faculty searchForFacultyByStudentId(@PathVariable Long id){
+        return studentService.searchForFacultyByStudentId(id);
+    }
+
 }
