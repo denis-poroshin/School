@@ -37,16 +37,16 @@ public class StudentController {
     public Collection<Student> getAllStudent(){
         return studentService.getAllStudent();
     }
-    @GetMapping("/")
+    @GetMapping(path = "/")
     public Collection<Student> searchForStudentsByColor(@RequestParam("age") int age){
         return studentService.searchForStudentsByAge(age);
     }
-    @GetMapping("/age/range")
-    public Collection<Student> findStudentsByAgeBetween(@RequestParam("minAge") int minAge,
-                                                        @RequestParam("maxAge") int maxAge){
+    @GetMapping(params = {"minAge", "maxAge"})
+    public Collection<Student> findStudentsByAgeBetween(@RequestParam(name = "minAge") int minAge,
+                                                        @RequestParam(name = "maxAge") int maxAge){
         return studentService.findByAgeBetween(minAge, maxAge);
     }
-    @GetMapping("/faculty/{id}")
+    @GetMapping("/{id}/faculty")
     public Faculty searchForFacultyByStudentId(@PathVariable Long id){
         return studentService.searchForFacultyByStudentId(id);
     }

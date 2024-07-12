@@ -15,11 +15,10 @@ import java.util.*;
 @Service
 public class StudentService {
     private final StudentRepository studentRepository;
-    private final FacultyRepository facultyRepository;
 
-    public StudentService(StudentRepository studentRepository, FacultyRepository facultyRepository) {
+
+    public StudentService(StudentRepository studentRepository) {
         this.studentRepository = studentRepository;
-        this.facultyRepository = facultyRepository;
     }
 
 
@@ -51,8 +50,8 @@ public class StudentService {
         return studentRepository.findByAgeBetween(minAge, maxAge);
     }
     public Faculty searchForFacultyByStudentId(long id){
-        return facultyRepository.findById(id).orElseThrow(
-                () -> new FacultyNotFoundException(id));
+        Student student = studentRepository.findById(id).orElseThrow(() -> new FacultyNotFoundException(id));
+        return student.getFaculty();
     }
     public Collection<Student> searchForStudentsByAge(int age){
         return studentRepository.findAllByAge(age);

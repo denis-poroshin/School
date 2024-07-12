@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 public class FacultyService {
     private final FacultyRepository facultyRepository;
     private final StudentRepository studentRepository;
+    Student student;
 
 
     public FacultyService(FacultyRepository facultyRepository, StudentRepository studentRepository) {
@@ -45,19 +46,26 @@ public class FacultyService {
         return remoteFaculty;
 
     }
-//    public Collection<Faculty> searchForStudentsByColor(String color){
-//        return facultyRepository.findAllByColor(color);
-//    }
-    public Collection<Faculty> findFacultyByNameOrColor(String name, String color){
-        return facultyRepository.findByNameIgnoreCaseOrColorIgnoreCase(name, color);
-    }
-    public Collection<Student> searchForAStudentByFaculty(long id){ // я не знаю как этот метод реализовать правильнее, но он работает)
 
-        return studentRepository.findAll().stream()
-                .filter(i -> i.getFaculty().getId() == id)
-                .collect(Collectors.toList());
+    public Collection<Faculty> findFacultyByNameOrColor(String nameOfColor){
+        return facultyRepository.findByNameIgnoreCaseOrColorIgnoreCase(nameOfColor , nameOfColor);
+    }
+    public Collection<Student> searchForAStudentByFaculty(long id) {
+
+//        return studentRepository.findAll().stream()
+//                .filter(i -> i.getFaculty().getId() == id)
+//                .collect(Collectors.toList());
+//        Faculty f = facultyRepository.findById(id).orElseThrow(() -> new FacultyNotFoundException(id));
+
+//        return studentRepository.findAllById(studentRepository.).get();
+//        return studentRepository.findById(id).filter(student -> student.getFaculty().getId() == id).stream().toList();
+        return studentRepository.findAllByFaculty_Id(id);
+
 
     }
+
+
+
     public Collection<Faculty> getAllFaculty(){
         return Collections.unmodifiableCollection(facultyRepository.findAll()); // создаст неизменяемую копию мапы
     }

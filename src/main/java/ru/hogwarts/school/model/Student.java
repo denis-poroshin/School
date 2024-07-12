@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import java.util.Objects;
 @Entity
 @Table(name = "student")
-@JsonIgnoreProperties("faculty")
+//@JsonIgnoreProperties("faculty")
 public class Student {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

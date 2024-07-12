@@ -6,6 +6,7 @@ import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.FacultyService;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -37,11 +38,10 @@ public class FacultyController {
         return facultyService.getAllFaculty();
     }
     @GetMapping("/")
-    public Collection<Faculty> searchForStudentsByColor(@RequestParam(value = "name", required = false) String name,
-                                                        @RequestParam(value = "color", required = false) String color){
-        return facultyService.findFacultyByNameOrColor(name, color);
+    public Collection<Faculty> searchForStudentsByColor(@RequestParam("nameOfColor") String nameOfColor){
+        return facultyService.findFacultyByNameOrColor(nameOfColor);
     }
-    @GetMapping("/student{id}")
+    @GetMapping("/{id}/student")
     public Collection<Student> searchForAStudentByFaculty(@PathVariable long id){
         return facultyService.searchForAStudentByFaculty(id);
     }
