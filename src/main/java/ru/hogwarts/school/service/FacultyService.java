@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 public class FacultyService {
     private final FacultyRepository facultyRepository;
     private final StudentRepository studentRepository;
-    Student student;
 
 
     public FacultyService(FacultyRepository facultyRepository, StudentRepository studentRepository) {
@@ -51,19 +50,8 @@ public class FacultyService {
         return facultyRepository.findByNameIgnoreCaseOrColorIgnoreCase(nameOfColor , nameOfColor);
     }
     public Collection<Student> searchForAStudentByFaculty(long id) {
-
-//        return studentRepository.findAll().stream()
-//                .filter(i -> i.getFaculty().getId() == id)
-//                .collect(Collectors.toList());
-//        Faculty f = facultyRepository.findById(id).orElseThrow(() -> new FacultyNotFoundException(id));
-
-//        return studentRepository.findAllById(studentRepository.).get();
-//        return studentRepository.findById(id).filter(student -> student.getFaculty().getId() == id).stream().toList();
         return studentRepository.findAllByFaculty_Id(id);
-
-
     }
-
 
 
     public Collection<Faculty> getAllFaculty(){
