@@ -22,9 +22,9 @@ public class Avatar {
 
     @Column(name = "mediaType")
     private String mediaType;
+//    @Column(columnDefinition = "oid")
 
-//    @Lob
-    @Column(columnDefinition = "oid")
+    @Lob
     private byte[] data;
 
     @OneToOne

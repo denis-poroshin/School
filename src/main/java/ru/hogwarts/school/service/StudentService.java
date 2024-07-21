@@ -15,21 +15,37 @@ import java.util.*;
 @Service
 public class StudentService {
     private final StudentRepository studentRepository;
+    private final FacultyRepository facultyRepository;
 
 
-    public StudentService(StudentRepository studentRepository) {
+    public StudentService(StudentRepository studentRepository, FacultyRepository facultyRepository) {
         this.studentRepository = studentRepository;
+        this.facultyRepository = facultyRepository;
     }
 
 
     public Student createStudent(Student student){
+        Faculty faculty = null;
+        if(student.getFaculty() != null && student.getFaculty().getId() != null){
+            faculty = facultyRepository.findById(student.getFaculty().getId())
+                    .orElseThrow(() -> new FacultyNotFoundException(student.getFaculty().getId()));
+        }
+        student.setFaculty(faculty);
+        student.setId(null);
         return studentRepository.save(student);
     }
     public void updateStudent(long id, Student student){
         Student newStudent = studentRepository.findById(id).orElseThrow(
                 () -> new FacultyNotFoundException(id));
+        Faculty faculty = null;
+        if(student.getFaculty() != null && student.getFaculty().getId() != null){
+            faculty = facultyRepository.findById(student.getFaculty().getId())
+                    .orElseThrow(() -> new FacultyNotFoundException(student.getFaculty().getId()));
+        }
+
         newStudent.setName(student.getName());
         newStudent.setAge(student.getAge());
+        newStudent.setFaculty(faculty);
         studentRepository.save(newStudent);
     }
     public Student getStudent(long id){

@@ -21,8 +21,7 @@ import java.util.UUID;
 
 @Service
 public class AvatarService {
-//    @Value("${student.avatars.dir.path}")
-//    private String avatarDir;
+
     private final Path path;
 
     private final StudentRepository studentRepository;
@@ -54,7 +53,6 @@ public class AvatarService {
             avatar.setMediaType(multipartFile.getContentType());
             avatar.setFilePath(avatarPath.toString());
             avatarRepository.save(avatar);
-
         } catch (IOException e) {
             throw new AvatarProcessingException();
         }
