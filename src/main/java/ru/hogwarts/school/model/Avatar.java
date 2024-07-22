@@ -1,6 +1,7 @@
 package ru.hogwarts.school.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Type;
 
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -22,9 +23,10 @@ public class Avatar {
 
     @Column(name = "mediaType")
     private String mediaType;
+
 //    @Column(columnDefinition = "oid")
 
-    @Lob
+    @Column(columnDefinition = "oid")
     private byte[] data;
 
     @OneToOne

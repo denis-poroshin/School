@@ -33,7 +33,7 @@ public class AvatarService {
                          @Value("${student.avatars-dir-path-name}") String avatarDirName) {
         this.studentRepository = studentRepository;
         this.avatarRepository = avatarRepository;
-        path = Paths.get(avatarDirName);
+        this.path = Paths.get(avatarDirName);
     }
 
     @Transactional
