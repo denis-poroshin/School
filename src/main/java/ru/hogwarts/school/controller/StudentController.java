@@ -49,7 +49,7 @@ public class StudentController {
         return studentService.getAllStudent();
     }
     @GetMapping(path = "/")
-    public Collection<Student> searchForStudentsByColor(@RequestParam("age") int age){
+    public Collection<Student> searchForStudentsByAge(@RequestParam("age") int age){
         return studentService.searchForStudentsByAge(age);
     }
 
