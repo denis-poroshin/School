@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.hogwarts.school.controller.StudentController;
+import ru.hogwarts.school.model.Avatar;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repositories.AvatarRepository;
@@ -19,11 +20,9 @@ import ru.hogwarts.school.repositories.StudentRepository;
 import ru.hogwarts.school.service.AvatarService;
 import ru.hogwarts.school.service.FacultyService;
 import ru.hogwarts.school.service.StudentService;
+import org.springframework.data.util.Pair;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -104,10 +103,16 @@ public class StudentControllerTest {
                         .content(studentObject.toString())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-//                .andExpect(jsonPath("$.id").value("1"))
-//                .andExpect(jsonPath("$.name").value("Гарри"))
-//                .andExpect(jsonPath("$.age").value("11"))
-//                .andExpect(jsonPath("$.faculty").value(null));
+
+        mockMvc.perform(MockMvcRequestBuilders //проверяем, что студент изменился
+                        .get("/student/1")
+                        .content(studentObject.toString())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("1"))
+                .andExpect(jsonPath("$.name").value("Гермиона"))
+                .andExpect(jsonPath("$.age").value("11"));
+
 
     }
     @Test
@@ -158,16 +163,20 @@ public class StudentControllerTest {
     }
     @Test
     public void getAllStudentTest() throws Exception{
-        JSONObject studentObject = new JSONObject();
+        Student student = new Student(1L, "Гарри", 11, null);
 
-        when(studentRepository.findAll()).thenReturn(new ArrayList<>());
+        JSONObject studentObject = new JSONObject();
+//        studentObject.put("student", student);
+        ArrayList<Student> arrayList = new ArrayList<>(List.of(student));
+
+        when(studentRepository.findAll()).thenReturn(arrayList);
 
         mockMvc.perform(MockMvcRequestBuilders
                         .get("/student")
                         .content(studentObject.toString())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(new ArrayList<>()));
+                .andExpect(jsonPath("$").value(arrayList));
     }
     @Test
     public void searchForStudentsByColorTest() throws Exception{ //No value at JSON path "$.id" Все обшарил в инете, нечего путного не нашел
@@ -214,7 +223,47 @@ public class StudentControllerTest {
                 .andExpect(jsonPath("$.name").value("Гриффиндор"))
                 .andExpect(jsonPath("$.color").value("Красный"));
     }
-    //Нужно ли проверять аватарки?
+    @Test
+    public void getAvatarFromDbTest() throws Exception {
+        Student student = new Student(1L, "Гарри", 11, null);
+        byte[] data = {1, 2, 3};
+        Avatar avatar = new Avatar(1L, "dwa", 123L, "jpeg", data, student);
+        Pair<byte[], String> pair = Pair.of(data, "jpeg");
+        JSONObject studentObject = new JSONObject();
+
+        when(studentRepository.save(student)).thenReturn(student);
+        when(avatarRepository.findByStudent_Id(1)).thenReturn(Optional.of(avatar));
+        when(avatarService.getAvatarFromDb(1)).thenReturn(pair);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/student/1/avatar-from-fs")
+                        .content(studentObject.toString())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(pair));
+//                .andExpect(jsonPath("$.name").value("Гриффиндор"))
+//                .andExpect(jsonPath("$.color").value("Красный"));
+
+    }
+    @Test
+    public void getAvatarFromFsTest() throws Exception{
+        Student student = new Student(1L, "Гарри", 11, null);
+        byte[] data = {1, 2, 3};
+        Avatar avatar = new Avatar(1L, "dwa", 123L, "jpeg", data, student);
+        Pair<byte[], String> pair = Pair.of(data, "jpeg");
+        JSONObject studentObject = new JSONObject();
+
+        when(studentRepository.save(student)).thenReturn(student);
+        when(avatarRepository.findByStudent_Id(1)).thenReturn(Optional.of(avatar));
+        when(avatarService.getAvatarFromDb(1)).thenReturn(pair);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/student/1/avatar-from-fs")
+                        .content(studentObject.toString())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(pair));
+    }
 
 
 

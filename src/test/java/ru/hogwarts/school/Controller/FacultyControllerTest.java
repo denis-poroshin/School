@@ -63,7 +63,7 @@ public class FacultyControllerTest {
         Faculty faculty = new Faculty(1L, "Гриффиндор", "Красный");
 
         when(facultyRepository.save(any(Faculty.class))).thenReturn(faculty);
-//        when(facultyRepository.findById(any(Long.class))).thenReturn(Optional.of(faculty));
+
 
         mockMvc.perform(MockMvcRequestBuilders.post("/faculty")
                         .content(facultyObject.toString())
@@ -91,9 +91,8 @@ public class FacultyControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-//                .andExpect(jsonPath("$.id").value("1"))
-//                .andExpect(jsonPath("$.name").value("Слизарин"))
-//                .andExpect(jsonPath("$.color").value("Синий"));
+
+
 
     }
     @Test
@@ -120,66 +119,65 @@ public class FacultyControllerTest {
     }
     @Test
     public void getAllFacultyTest() throws Exception{
+        Faculty faculty = new Faculty(1L, "Гриффиндор", "Красный");
         JSONObject facultyObject = new JSONObject();
-//        facultyObject.put("name", "Гриффиндор");
-//        facultyObject.put("color", "Красный");
-//        facultyObject.put("name", "Слизарин");
-//        facultyObject.put("color", "Синий");
-//        Faculty faculty = new Faculty(1L, "Гриффиндор", "Красный");
-//        Faculty facultyToy = new Faculty(2L, "Гриффиндорр", "Красныйй");
-//        ArrayList<Faculty> facultyArrayList = new ArrayList<>(List.of(faculty, facultyToy));
 
 
-        when(facultyRepository.findAll()).thenReturn(new ArrayList<>());
+
+        ArrayList<Faculty> facultyArrayList = new ArrayList<>(List.of(faculty));
+
+
+
+
+        when(facultyRepository.findAll()).thenReturn(facultyArrayList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/faculty")
                         .content(facultyObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON.toString()))
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(new ArrayList<>()));
+                .andExpect(jsonPath("$").value(facultyArrayList));
+
+
     }
     @Test
-    public void searchForStudentsByColorTest() throws Exception{ //может требуется еще какая-то проверка?
-        JSONObject facultyObject = new JSONObject();
-        facultyObject.put("name", "Гриффиндор");
-        facultyObject.put("color", "Красный");
+    public void searchForStudentsByColorTest() throws Exception{ //должно проходить, но возващается пустой список, что может быть не так?
         Faculty faculty = new Faculty(1L, "Гриффиндор", "Красный");
+        JSONObject facultyObject = new JSONObject();
 
+        ArrayList<Faculty> facultyArrayList = new ArrayList<>(List.of(faculty));
 
-        when(facultyRepository.findByNameIgnoreCaseOrColorIgnoreCase("Гриффиндор", "Красный")).thenReturn(Collections.singleton(faculty));
+        when(facultyRepository.findByNameIgnoreCaseOrColorIgnoreCase("Гриффиндор", "Красный")).thenReturn(facultyArrayList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/faculty/?nameOfColor=Гриффиндор")
+        mockMvc.perform(MockMvcRequestBuilders.get("/faculty/?nameOfColor=Красный")
                         .content(facultyObject.toString())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-//                .andExpect(jsonPath("$").value(faculty));
-//                .andExpect(jsonPath("$.name").value("Гриффиндор"));
-//                .andExpect(jsonPath("$.color").value("Красный"));
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(facultyArrayList));
+
 
     }
     @Test
     public void searchForAStudentByFacultyTest() throws Exception{
         Faculty faculty = new Faculty(1L, "Гриффиндор", "Красный");
         JSONObject facultyObject = new JSONObject();
-        facultyObject.put("name", "Гарри");
-        facultyObject.put("age", "11");
-        facultyObject.put("faculty", faculty);
+//        facultyObject.put("name", "Гарри");
+//        facultyObject.put("age", "11");
+//        facultyObject.put("faculty", faculty);
         Student student = new Student(1L, "Гарри", 11, faculty);
 
+        ArrayList<Student> studentsArrayList = new ArrayList<>(List.of(student));
 
-        when(studentRepository.findAllByFaculty_Id(any(Long.class))).thenReturn(Collections.singleton(student));
+//        when(studentRepository.findAllByFaculty_Id(any(Long.class))).thenReturn(Collections.singleton(student));
+        when(studentRepository.findAllByFaculty_Id(1)).thenReturn(studentsArrayList);
+
 
         mockMvc.perform(MockMvcRequestBuilders.get("/faculty/1/student")
                         .content(facultyObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-//                .andExpect(jsonPath("$.id").value("1"))
-//                .andExpect(jsonPath("$.name").value("Гарри"))
-//                .andExpect(jsonPath("$.age").value("11"))
-//                .andExpect(jsonPath("$.faculty").value(faculty));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(studentsArrayList));
 
     }
 }
