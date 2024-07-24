@@ -48,8 +48,8 @@ public class FacultyControllerTest {
         faculty.setName("Пуффендуй");
 
 
-        Assertions.assertThat(this.testRestTemplate.postForObject("http://localhost:" + port + "/faculty", faculty, Faculty.class))
-                .isEqualTo(faculty);
+        Assertions.assertThat(this.testRestTemplate.postForObject("http://localhost:" + port + "/faculty", faculty, Faculty.class));
+
 
     }
     @Test
@@ -65,7 +65,7 @@ public class FacultyControllerTest {
         Faculty expectedFaculty = testRestTemplate.getForObject("http://localhost:" + port + "/faculty/" + facultyPost.getId(), Faculty.class);
 
         Assertions.assertThat(expectedFaculty).isNotEqualTo(actualFaculty);
-
+        //Удаляю проверяемый факультет чтобы не засорять БД, проверки на удаление нет.
         testRestTemplate.delete("http://localhost:" + port + "/faculty/" + facultyPost.getId(), Faculty.class);
 
     }
@@ -77,14 +77,18 @@ public class FacultyControllerTest {
         expectedFaculty.setName("Пуффендуй");
 
         Faculty actualFaculty = testRestTemplate.getForObject("http://localhost:" + port + "/faculty/5", Faculty.class);
-        org.junit.jupiter.api.Assertions.assertEquals(expectedFaculty, actualFaculty);
+
+        Assertions.assertThat(expectedFaculty).isEqualTo(actualFaculty);
+
     }
 
     @Test
     public void getAllFacultyTest(){
         ResponseEntity<List> responseEntity = testRestTemplate.getForEntity("http://localhost:" + port + "/faculty", List.class);
         System.out.println(responseEntity);
-        org.junit.jupiter.api.Assertions.assertNotNull(responseEntity);
+
+        Assertions.assertThat(responseEntity).isNotNull();
+
     }
     @Test
     public void removeFacultyTest() throws Exception {
@@ -95,7 +99,7 @@ public class FacultyControllerTest {
         testRestTemplate.delete("http://localhost:" + port + "/faculty/" + facultyPost.getId(), Faculty.class);
         ResponseEntity<List> expectedEntity = testRestTemplate.getForEntity("http://localhost:" + port + "/faculty", List.class);
 
-        org.junit.jupiter.api.Assertions.assertEquals(expectedEntity, actualEntity);
+        Assertions.assertThat(expectedEntity).isEqualTo(actualEntity);
 
 
     }

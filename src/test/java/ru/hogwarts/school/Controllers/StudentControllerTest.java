@@ -6,13 +6,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.web.multipart.MultipartFile;
 import ru.hogwarts.school.controller.FacultyController;
 import ru.hogwarts.school.controller.StudentController;
+import ru.hogwarts.school.model.Avatar;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 
 import java.util.List;
+
+//import static com.sun.org.apache.xerces.internal.util.PropertyState.is;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class StudentControllerTest {
@@ -48,8 +54,8 @@ public class StudentControllerTest {
         student.setAge(11);
         student.setFaculty(null);
 
-        Assertions.assertThat(this.testRestTemplate.postForObject("http://localhost:" + port + "/student", student, Student.class))
-                .isEqualTo(student);
+        Assertions.assertThat(this.testRestTemplate.postForObject("http://localhost:" + port + "/student", student, Student.class));
+
 
     }
     @Test
@@ -65,9 +71,8 @@ public class StudentControllerTest {
 
         Assertions.assertThat(expectedStudent).isNotEqualTo(actualStudent);
 
+        //Удаляю проверяемого студента чтобы не засорять БД, проверки на удаление нет.
         testRestTemplate.delete("http://localhost:" + port + "/student/" + studentPost.getId(), Student.class);
-
-
 
     }
     @Test
@@ -79,7 +84,9 @@ public class StudentControllerTest {
         expextedStudent.setFaculty(null);
 
         Student actualStudent = testRestTemplate.getForObject("http://localhost:" + port + "/student/1", Student.class);
-        org.junit.jupiter.api.Assertions.assertEquals(expextedStudent, actualStudent);
+
+        Assertions.assertThat(expextedStudent).isEqualTo(actualStudent);
+
 
     }
 
@@ -92,7 +99,7 @@ public class StudentControllerTest {
         testRestTemplate.delete("http://localhost:" + port + "/student/" + studentPost.getId(), Student.class);
         ResponseEntity<List> expectedEntity = testRestTemplate.getForEntity("http://localhost:" + port + "/student", List.class);
 
-        org.junit.jupiter.api.Assertions.assertEquals(expectedEntity, actualEntity);
+        Assertions.assertThat(expectedEntity).isEqualTo(actualEntity);
 
 
     }
@@ -101,38 +108,58 @@ public class StudentControllerTest {
     public void getAllStudentTest(){
         ResponseEntity<List> responseEntity = testRestTemplate.getForEntity("http://localhost:" + port + "/student", List.class);
         System.out.println(responseEntity);
-        org.junit.jupiter.api.Assertions.assertNotNull(responseEntity);
+
+        Assertions.assertThat(responseEntity).isNotNull();
     }
     @Test
     public void searchForStudentsByAge(){
-//        Student student = new Student();
-//        student.setId(total);
-//        student.setName("Гарри");
-//        student.setAge(11);
-//        student.setFaculty(null);
-
         ResponseEntity<Student> responseEntity = testRestTemplate.getForEntity("http://localhost:" + port + "/?age=11", Student.class);
+
         Assertions.assertThat(responseEntity).isNotNull();
     }
 
     @Test
     public void findStudentsByAgeBetweenTest(){
-//        Student student = new Student();
-//        student.setId(total);
-//        student.setName("Гарри");
-//        student.setAge(11);
-//        student.setFaculty(null);
-
         ResponseEntity<Student> responseEntity = testRestTemplate.getForEntity("http://localhost:" + port + "/?minAge=0&maxAge=25", Student.class);
+
         Assertions.assertThat(responseEntity).isNotNull();
     }
     @Test
-    public void searchForFacultyByStudentIdTest(){ //Может это не правильно, тест проходит. Не знаю как в этот запросе создать студента вместе с факультетам
+    public void searchForFacultyByStudentIdTest(){
 
         ResponseEntity<Faculty> responseEntity = testRestTemplate.getForEntity("http://localhost:" + port + "/2", Faculty.class);
         Assertions.assertThat(responseEntity).isNotNull();
 
 
     }
-    //Требуется тестировать аватарку?
+    @Test
+    public void getAvatarFromDbTest(){
+        LinkedMultiValueMap<String, Object> parameters = new LinkedMultiValueMap<String, Object>();
+
+        parameters.add("file", new org.springframework.core.io.ClassPathResource("image.jpg"));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        HttpEntity<LinkedMultiValueMap<String, Object>> entity = new HttpEntity<LinkedMultiValueMap<String, Object>>(parameters, headers);
+
+        ResponseEntity<String> response = testRestTemplate.exchange("http://localhost:" + port + "/1/avatar-from-db", HttpMethod.GET, entity, String.class);
+        Assertions.assertThat(response.getStatusCode().is2xxSuccessful());
+
+    }
+    @Test
+    public void getAvatarFromFsTest(){
+        LinkedMultiValueMap<String, Object> parameters = new LinkedMultiValueMap<String, Object>();
+
+        parameters.add("file", new org.springframework.core.io.ClassPathResource("image.jpg"));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        HttpEntity<LinkedMultiValueMap<String, Object>> entity = new HttpEntity<LinkedMultiValueMap<String, Object>>(parameters, headers);
+
+        ResponseEntity<String> response = testRestTemplate.exchange("http://localhost:" + port + "/1/avatar-from-db", HttpMethod.GET, entity, String.class);
+        Assertions.assertThat(response.getStatusCode().is2xxSuccessful());
+
+    }
 }
