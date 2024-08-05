@@ -36,7 +36,7 @@ public class StudentService {
     }
     public void updateStudent(long id, Student student){
         Student newStudent = studentRepository.findById(id).orElseThrow(
-                () -> new FacultyNotFoundException(id));
+                () -> new StudentNotFoundException(id));
         Faculty faculty = null;
         if(student.getFaculty() != null && student.getFaculty().getId() != null){
             faculty = facultyRepository.findById(student.getFaculty().getId())
@@ -60,7 +60,7 @@ public class StudentService {
 
     }
     public Collection<Student> getAllStudent(){
-        return Collections.unmodifiableCollection(studentRepository.findAll()); // создаст неизменяемую копию мапы
+        return Collections.unmodifiableCollection(studentRepository.findAll()); // создаст неизменяемую копию листа
     }
     public Collection<Student> findByAgeBetween(int minAge, int maxAge){
         return studentRepository.findByAgeBetween(minAge, maxAge);
@@ -72,4 +72,14 @@ public class StudentService {
     public Collection<Student> searchForStudentsByAge(int age){
         return studentRepository.findAllByAge(age);
     }
+    public Integer getNumberOfStudents(){
+        return studentRepository.getNumberOfStudents();
+    }
+    public Double getMiddleAged(){
+        return studentRepository.getMiddleAged();
+    }
+    public Collection<Student> getNewFiveStudents(){
+        return studentRepository.getNewFiveStudents();
+    }
+
 }

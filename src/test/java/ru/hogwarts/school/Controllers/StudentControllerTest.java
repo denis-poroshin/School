@@ -1,28 +1,32 @@
 package ru.hogwarts.school.Controllers;
 
+import net.datafaker.Faker;
 import org.assertj.core.api.Assertions;
+import org.checkerframework.checker.units.qual.A;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.web.multipart.MultipartFile;
 import ru.hogwarts.school.controller.FacultyController;
 import ru.hogwarts.school.controller.StudentController;
-import ru.hogwarts.school.model.Avatar;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.repositories.FacultyRepository;
+import ru.hogwarts.school.repositories.StudentRepository;
 
-import java.util.List;
+import java.util.*;
 
 //import static com.sun.org.apache.xerces.internal.util.PropertyState.is;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class StudentControllerTest {
-    long total = 2;
+
 
     @LocalServerPort
     private int port;
@@ -33,104 +37,236 @@ public class StudentControllerTest {
     @Autowired
     private FacultyController facultyController;
 
+    private final Faker faker = new Faker();
+
     @Autowired
     private TestRestTemplate testRestTemplate;
+    private Faculty faculty1;
+    private Faculty faculty2;
+    private Student student1;
+    private Student student2;
+    private Student student3;
+    private Student student4;
+    private Student student5;
+    private Student student6;
+    @Autowired
+    private FacultyRepository facultyRepository;
+    @Autowired
+    private StudentRepository studentRepository;
+
+    @AfterEach
+    public void afterEach(){
+        studentRepository.deleteAll();
+        facultyRepository.deleteAll();
+    }
+
+    @BeforeEach
+    public void beforeEach(){
+        faculty1 = new Faculty(1L, "Гриффиндор", "Красный");
+        faculty2 = new Faculty(2L, "Слизарин", "Синий");
+
+        facultyRepository.saveAll(List.of(faculty1, faculty2));
+
+        student1 = new Student(1L, "Гарри", 11, faculty1);
+        student2 = new Student(2L, "Рон", 13, faculty2);
+        student3 = new Student(3L, "Рон", 13, faculty2);
+        student4 = new Student(4L, "Рон", 13, faculty2);
+        student5 = new Student(5L, "Рон", 13, faculty2);
+        student6 = new Student(6L, "Рон", 13, faculty2);
+
+        studentRepository.saveAll(List.of(student1, student2, student3, student4, student5, student6));
+
+    }
 
     @Test
     public void contextLoads(){
         Assertions.assertThat(studentController).isNotNull();
     }
+
     @Test
-    public void addStudentTest() throws Exception{
-        ++total;
-
-        Faculty faculty = new Faculty();
-        faculty.setId(1L);
-        faculty.setColor("Голубой");
-        faculty.setName("Пуффендуй");
-        Student student = new Student();
-        student.setId(total);
-        student.setName("Гарри");
-        student.setAge(11);
-        student.setFaculty(null);
-
-        Assertions.assertThat(this.testRestTemplate.postForObject("http://localhost:" + port + "/student", student, Student.class));
+    public void createStudentTestPositive() throws Exception{
+        Student student = new Student(3L, "Гарри", 11, null);
 
 
+        ResponseEntity<Student> studentResponseEntity = testRestTemplate.postForEntity("http://localhost:" + port + "/student", student, Student.class);
+
+
+        Assertions.assertThat(studentResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(Objects.requireNonNull(studentResponseEntity.getBody()).getId()).isEqualTo(student.getId());
+        Assertions.assertThat(studentResponseEntity.getBody()).isEqualTo(student);
     }
     @Test
-    public void updateTest(){
-        Student student = new Student(1L, "Гермиона", 11, null);
-        Student newStudent = new Student(1L, "Рон", 15, null);
+    public void createFacultyTestPositive() throws Exception{
+        Student student = new Student(3L, "Гарри", 11, faculty2);
 
-        Student studentPost = this.testRestTemplate.postForObject("http://localhost:" + port + "/student", student, Student.class);
-        Student actualStudent = this.testRestTemplate.getForObject("http://localhost:" + port + "/student/" + studentPost.getId(), Student.class);
 
-        testRestTemplate.put("http://localhost:" + port + "/student/" + studentPost.getId(),newStudent, Student.class);
-        Student expectedStudent = testRestTemplate.getForObject("http://localhost:" + port + "/student/" + studentPost.getId(), Student.class);
+        ResponseEntity<Student> studentResponseEntity = testRestTemplate.postForEntity("http://localhost:" + port + "/student", student, Student.class);
 
-        Assertions.assertThat(expectedStudent).isNotEqualTo(actualStudent);
 
-        //Удаляю проверяемого студента чтобы не засорять БД, проверки на удаление нет.
-        testRestTemplate.delete("http://localhost:" + port + "/student/" + studentPost.getId(), Student.class);
-
+        Assertions.assertThat(studentResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(Objects.requireNonNull(studentResponseEntity.getBody()).getId()).isEqualTo(student.getId());
+        Assertions.assertThat(studentResponseEntity.getBody()).isEqualTo(student);
+        Assertions.assertThat(studentResponseEntity.getBody().getFaculty()).isEqualTo(faculty2);
     }
+
     @Test
-    public void getStudentTest(){
-        Student expextedStudent = new Student();
-        expextedStudent.setId(1L);
-        expextedStudent.setName("Гарри");
-        expextedStudent.setAge(11);
-        expextedStudent.setFaculty(null);
+    public void createStudentTestNegative() throws Exception{
+        Faculty facultyNotBD = new Faculty(-1L, "Гриффиндор", "Красный");
+        Student student = new Student(1L, "Гарри", 11, facultyNotBD);
 
-        Student actualStudent = testRestTemplate.getForObject("http://localhost:" + port + "/student/1", Student.class);
 
-        Assertions.assertThat(expextedStudent).isEqualTo(actualStudent);
-
+        ResponseEntity<String> studentResponseEntity = testRestTemplate.postForEntity("http://localhost:" + port + "/student", student, String.class);
+        Assertions.assertThat(studentResponseEntity.getBody()).isEqualTo("Факультет с id = %d не найден".formatted(-1));
 
     }
 
     @Test
-    public void removeStudentTest(){
-        ResponseEntity<List> actualEntity = testRestTemplate.getForEntity("http://localhost:" + port + "/student", List.class);
-        Student student = new Student(1L, "Гермиона", 11, null);
-        Student studentPost = this.testRestTemplate.postForObject("http://localhost:" + port + "/student", student, Student.class);
+    public void updateTestPositive(){
+        Student newStudent = new Student(1L, "Рон", 15, faculty2);
 
-        testRestTemplate.delete("http://localhost:" + port + "/student/" + studentPost.getId(), Student.class);
-        ResponseEntity<List> expectedEntity = testRestTemplate.getForEntity("http://localhost:" + port + "/student", List.class);
 
-        Assertions.assertThat(expectedEntity).isEqualTo(actualEntity);
+        testRestTemplate.put("http://localhost:" + port + "/student/" + newStudent.getId(),newStudent, Student.class);
+        ResponseEntity<Student> studentResponseEntity = testRestTemplate.getForEntity("http://localhost:" + port + "/student/1", Student.class);
 
+
+        Assertions.assertThat(studentResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(Objects.requireNonNull(studentResponseEntity.getBody()).getId()).isEqualTo(newStudent.getId());
+        Assertions.assertThat(studentResponseEntity.getBody()).isEqualTo(newStudent);
+        Assertions.assertThat(studentResponseEntity.getBody().getFaculty()).isEqualTo(faculty2);
+
+    }
+
+    @Test
+    public void getStudentTestPositive(){
+        ResponseEntity<Student> studentResponseEntity = testRestTemplate.getForEntity("http://localhost:" + port + "/student/" + student1.getId(), Student.class);
+
+
+        Assertions.assertThat(studentResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(Objects.requireNonNull(studentResponseEntity.getBody()).getId()).isEqualTo(student1.getId());
+        Assertions.assertThat(studentResponseEntity.getBody()).isEqualTo(student1);
+        Assertions.assertThat(studentResponseEntity.getBody().getFaculty()).isEqualTo(faculty1);
+    }
+    @Test
+    public void getStudentTestNegative(){
+        Student newStudent = new Student(-1L, "Рон", 15, faculty2);
+
+
+        ResponseEntity<String> studentResponseEntity = testRestTemplate.getForEntity("http://localhost:" + port + "/student/" + newStudent.getId(), String.class);
+
+
+        Assertions.assertThat(studentResponseEntity.getBody()).isEqualTo("Студент с id = %d не найден".formatted(-1));
+    }
+
+    @Test
+    public void removeStudentTestPositive(){
+        List<Student> expectedStudents = new ArrayList<>(List.of(student1));
+
+
+        ResponseEntity<Student> responseEntityDelete = testRestTemplate.exchange("http://localhost:" + port + "/student/" + student2.getId(), HttpMethod.DELETE,
+                null,
+                new ParameterizedTypeReference<>() {
+                });
+        ResponseEntity<List<Student>> responseEntity = testRestTemplate.exchange("http://localhost:" + port + "/student", HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {
+                });
+        List<Student> actualStudents = responseEntity.getBody();
+
+
+        Assertions.assertThat(responseEntityDelete.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(responseEntityDelete.getBody()).isEqualTo(student2);
+        Assertions.assertThat(actualStudents).usingRecursiveAssertion()
+                .ignoringAllNullFields()
+                .isEqualTo(expectedStudents);
+
+    }
+    @Test
+    public void removeStudentTestNegative(){
+        ResponseEntity<String> responseEntityDelete = testRestTemplate.exchange("http://localhost:" + port + "/student/" + -1, HttpMethod.DELETE,
+                null,
+                new ParameterizedTypeReference<>() {
+                });
+
+        Assertions.assertThat(responseEntityDelete.getBody()).isEqualTo("Студент с id = %d не найден".formatted(-1));
 
     }
 
     @Test
     public void getAllStudentTest(){
-        ResponseEntity<List> responseEntity = testRestTemplate.getForEntity("http://localhost:" + port + "/student", List.class);
-        System.out.println(responseEntity);
+        List<Student> expectedStudents = new ArrayList<>(List.of(student1, student2));
 
-        Assertions.assertThat(responseEntity).isNotNull();
+
+        ResponseEntity<List<Student>> responseEntity = testRestTemplate.exchange("http://localhost:" + port + "/student", HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {
+                });
+
+
+        List<Student> actualStudents = responseEntity.getBody();
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(actualStudents).usingRecursiveAssertion()
+                .ignoringAllNullFields()
+                .isEqualTo(expectedStudents);
+
     }
-    @Test
-    public void searchForStudentsByAge(){
-        ResponseEntity<Student> responseEntity = testRestTemplate.getForEntity("http://localhost:" + port + "/?age=11", Student.class);
 
-        Assertions.assertThat(responseEntity).isNotNull();
+    @Test
+    public void searchForStudentsByAge1(){
+        int age = 11;
+        List<Student> students = new ArrayList<>(List.of(student1, student2));
+        List<Student> expectedStudents = students.stream()
+                .filter(student -> student.getAge() == age)
+                .toList();
+
+
+        ResponseEntity<List<Student>> responseEntity = testRestTemplate.exchange("http://localhost:" + port + "/student/?age=" + age, HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {
+                },
+                Map.of("minAge", age));
+
+
+        List<Student> actualStudents = responseEntity.getBody();
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(actualStudents).usingRecursiveAssertion()
+                .ignoringAllNullFields()
+                .isEqualTo(expectedStudents);
+
     }
 
     @Test
     public void findStudentsByAgeBetweenTest(){
-        ResponseEntity<Student> responseEntity = testRestTemplate.getForEntity("http://localhost:" + port + "/?minAge=0&maxAge=25", Student.class);
+        int minAge = 10;
+        int maxAge = 12;
+        List<Student> students = new ArrayList<>(List.of(student1, student2));
+        List<Student> expectedStudents = students.stream()
+                .filter(student -> student.getAge() <= maxAge && student.getAge() >= minAge)
+                .toList();
 
-        Assertions.assertThat(responseEntity).isNotNull();
+
+        ResponseEntity<List<Student>> responseEntity = testRestTemplate.exchange("http://localhost:" + port + "/student?minAge=" + minAge + "&maxAge=" + maxAge, HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {
+                });
+
+
+        List<Student> actualStudents = responseEntity.getBody();
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(actualStudents).usingRecursiveAssertion()
+                .ignoringAllNullFields()
+                .isEqualTo(expectedStudents);
+
+
     }
     @Test
     public void searchForFacultyByStudentIdTest(){
+        ResponseEntity<Faculty> responseEntity = testRestTemplate.getForEntity("http://localhost:" + port + "/student/" + student1.getId() + "/faculty",
+                Faculty.class);
 
-        ResponseEntity<Faculty> responseEntity = testRestTemplate.getForEntity("http://localhost:" + port + "/2", Faculty.class);
+
         Assertions.assertThat(responseEntity).isNotNull();
-
-
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo(student1.getFaculty());
     }
     @Test
     public void getAvatarFromDbTest(){
@@ -160,6 +296,47 @@ public class StudentControllerTest {
 
         ResponseEntity<String> response = testRestTemplate.exchange("http://localhost:" + port + "/1/avatar-from-db", HttpMethod.GET, entity, String.class);
         Assertions.assertThat(response.getStatusCode().is2xxSuccessful());
+
+    }
+    @Test
+    public void getNumberOfStudentsTest(){
+        List<Student> students = new ArrayList<>(List.of(student1, student2));
+        int expectedStudentsSize = students.size();
+
+
+        ResponseEntity<Integer> responseEntity = testRestTemplate.getForEntity("http://localhost:" + port + "/student/count", Integer.class);
+
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo(expectedStudentsSize);
+
+    }
+    @Test
+    public void getMiddleAgedTest(){
+        Double avgStudent = (student1.getAge() + student2.getAge()) / 2.0;
+
+
+        ResponseEntity<Double> responseEntity = testRestTemplate.getForEntity("http://localhost:" + port + "/student/avg", Double.class);
+
+
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(responseEntity.getBody()).isEqualTo(avgStudent);
+    }
+    @Test
+    public void getNewFiveStudents(){
+        List<Student> expectedStudents = new ArrayList<>(List.of(student2, student3, student4, student5, student6));
+        ResponseEntity<List<Student>> responseEntity = testRestTemplate.exchange("http://localhost:" + port + "/student/new-five-students", HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {
+                });
+        List<Student> actualStudents = responseEntity.getBody();
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(actualStudents).usingRecursiveAssertion()
+                .ignoringAllNullFields()
+                .isEqualTo(expectedStudents);
+
+
+
 
     }
 }

@@ -14,4 +14,10 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     // можно с SQL запросом
 //    @Query("SELECT * FROM student WHERE faculty_id = :facultyId")
 //    Collection<Student>findAllByFacultyId(@Param("facultyId") long facultyId);
+    @Query(value = "SELECT COUNT(*) FROM student", nativeQuery = true)
+    Integer getNumberOfStudents();
+    @Query(value = "SELECT AVG(age) FROM student", nativeQuery = true)
+    Double getMiddleAged();
+    @Query(value = "SELECT * FROM (SELECT * FROM student ORDER BY id DESC LIMIT 5) t ORDER BY id;", nativeQuery = true)
+    Collection<Student> getNewFiveStudents();
 }
