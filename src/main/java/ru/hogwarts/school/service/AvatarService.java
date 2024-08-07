@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import ru.hogwarts.school.exception.AvatarProcessingException;
+import ru.hogwarts.school.exception.NotCorrectValueException;
 import ru.hogwarts.school.exception.StudentNotFoundException;
 import ru.hogwarts.school.model.Avatar;
 import ru.hogwarts.school.model.Student;
@@ -44,7 +45,8 @@ public class AvatarService {
             byte[] data = multipartFile.getBytes();
             String extension = StringUtils.getFilenameExtension(multipartFile.getOriginalFilename());
             Path avatarPath = path.resolve(UUID.randomUUID() + "." + extension);
-            Files.write(avatarPath, data);
+            //Files.write(avatarPath, data);
+            Files.createDirectories(avatarPath.getParent());
             Student student = studentRepository.findById(studentId)
                     .orElseThrow(() -> new StudentNotFoundException(studentId));
             Avatar avatar = avatarRepository.findByStudent_Id(studentId)
@@ -59,12 +61,14 @@ public class AvatarService {
             throw new AvatarProcessingException();
         }
     }
+
     public Pair<byte[], String> getAvatarFromDb(long studentId){
         Avatar avatar = avatarRepository.findByStudent_Id(studentId)
                 .orElseThrow(() -> new StudentNotFoundException(studentId));
         return Pair.of(avatar.getData(), avatar.getMediaType());
 
     }
+
     public Pair<byte[], String> getAvatarFromFs(long studentId){
         try {
             Avatar avatar = avatarRepository.findByStudent_Id(studentId)
@@ -76,7 +80,11 @@ public class AvatarService {
 
 
     }
+
     public Collection<Avatar> getAllAvatars(Integer pageNumber, Integer pageSize){
+        if(pageNumber == 0){
+            throw new NotCorrectValueException();
+        }
         PageRequest pageRequest = PageRequest.of(pageNumber - 1, pageSize);
         return avatarRepository.findAll(pageRequest).getContent();
     }

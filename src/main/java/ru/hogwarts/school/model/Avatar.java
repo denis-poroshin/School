@@ -1,6 +1,9 @@
 package ru.hogwarts.school.model;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Type;
+
 
 import java.nio.file.Path;
 import java.util.Arrays;

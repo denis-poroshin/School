@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.hogwarts.school.exception.AvatarProcessingException;
+import ru.hogwarts.school.exception.NotCorrectValueException;
 import ru.hogwarts.school.exception.NotFoundException;
 
 @RestControllerAdvice
@@ -21,5 +22,11 @@ public class HogwartsExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body("Не удалось прочитать аватарку из запроса или файла");
+    }
+    @ExceptionHandler(NotCorrectValueException.class)
+    public ResponseEntity<String> handleNotCorrectValueException(){
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body("Значение введено некорректно");
     }
 }

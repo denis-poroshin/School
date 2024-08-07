@@ -55,7 +55,7 @@ public class FacultyService {
 
 
     public Collection<Faculty> getAllFaculty(){
-        return Collections.unmodifiableCollection(facultyRepository.findAll()); // создаст неизменяемую копию мапы
+        return Collections.unmodifiableCollection(facultyRepository.findAll()); // создаст неизменяемую копию коллекции
     }
 
 }
