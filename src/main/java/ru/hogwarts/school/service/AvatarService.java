@@ -61,7 +61,7 @@ public class AvatarService {
             throw new AvatarProcessingException();
         }
     }
-
+    @Transactional
     public Pair<byte[], String> getAvatarFromDb(long studentId){
         Avatar avatar = avatarRepository.findByStudent_Id(studentId)
                 .orElseThrow(() -> new StudentNotFoundException(studentId));
@@ -69,12 +69,15 @@ public class AvatarService {
 
     }
 
+    @Transactional
     public Pair<byte[], String> getAvatarFromFs(long studentId){
         try {
             Avatar avatar = avatarRepository.findByStudent_Id(studentId)
                     .orElseThrow(() -> new StudentNotFoundException(studentId));
+            System.out.println(avatar);
             return Pair.of(Files.readAllBytes(Path.of(avatar.getFilePath())), avatar.getMediaType());
         }catch (IOException e){
+            e.printStackTrace();
             throw new AvatarProcessingException();
         }
 
