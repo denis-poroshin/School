@@ -8,3 +8,5 @@ CREATE TABLE faculty(
                 color VARCHAR(30)
 );
 
+CREATE INDEX faculty_name_and_color_index ON faculty (name, color);
+
