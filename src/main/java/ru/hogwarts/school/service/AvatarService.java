@@ -1,6 +1,8 @@
 package ru.hogwarts.school.service;
 
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,9 @@ public class AvatarService {
 
     private final AvatarRepository avatarRepository;
 
+    private Logger logger = LoggerFactory.getLogger(AvatarService.class);
+
+
     public AvatarService(StudentRepository studentRepository,
                          AvatarRepository avatarRepository,
                          @Value("${student.avatars-dir-path-name}") String avatarDirName) {
@@ -41,6 +46,7 @@ public class AvatarService {
 
     @Transactional
     public void uploadAvatar(MultipartFile multipartFile, long studentId) {
+        logger.info("Uploading avatar");
         try {
             byte[] data = multipartFile.getBytes();
             String extension = StringUtils.getFilenameExtension(multipartFile.getOriginalFilename());
@@ -63,6 +69,7 @@ public class AvatarService {
     }
     @Transactional
     public Pair<byte[], String> getAvatarFromDb(long studentId){
+        logger.info("Getting avatar from DB");
         Avatar avatar = avatarRepository.findByStudent_Id(studentId)
                 .orElseThrow(() -> new StudentNotFoundException(studentId));
         return Pair.of(avatar.getData(), avatar.getMediaType());
@@ -71,6 +78,7 @@ public class AvatarService {
 
     @Transactional
     public Pair<byte[], String> getAvatarFromFs(long studentId){
+        logger.info("Getting avatar from Fs");
         try {
             Avatar avatar = avatarRepository.findByStudent_Id(studentId)
                     .orElseThrow(() -> new StudentNotFoundException(studentId));
@@ -85,6 +93,7 @@ public class AvatarService {
     }
 
     public Collection<Avatar> getAllAvatars(Integer pageNumber, Integer pageSize){
+        logger.info("Getting all avatars");
         if(pageNumber == 0){
             throw new NotCorrectValueException();
         }
