@@ -33,6 +33,11 @@ public class FacultyController {
     public Faculty removeFaculty(@PathVariable long id){
         return facultyService.removeFaculty(id);
     }
+    @GetMapping("/max-length-name-faculty")
+    public String getMaxLengthNameFaculty(){
+        return facultyService.getMaxLengthNameFaculty();
+
+    }
     @GetMapping
     public Collection<Faculty> getAllFaculty(){
         return facultyService.getAllFaculty();
@@ -45,9 +50,5 @@ public class FacultyController {
     public Collection<Student> searchForAStudentByFaculty(@PathVariable long id){
         return facultyService.searchForAStudentByFaculty(id);
     }
-//    @GetMapping
-//    public Collection<Faculty> findFacultyByNameOrColor(@RequestParam(value = "name", required = false) String name,
-//                                                        @RequestParam(value = "color", required = false) String color){
-//        return facultyService.findFacultyByNameOrColor(name, color);
-//    }
+
 }

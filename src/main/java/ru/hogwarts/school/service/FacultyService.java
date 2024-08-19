@@ -28,11 +28,11 @@ public class FacultyService {
 
 
     public Faculty createFaculty(Faculty faculty){
-        logger.info("Faculty created");
+        logger.info("Faculty created : {}", faculty);
         return facultyRepository.save(faculty);
     }
     public void updateFaculty(long id, Faculty faculty){
-        logger.info("Faculty updated");
+        logger.info("Faculty updated : id = {}, faculty = {}", id, faculty);
         Faculty newFaculty = facultyRepository.findById(id).orElseThrow(
                 () -> new FacultyNotFoundException(id));
         newFaculty.setName(faculty.getName());
@@ -40,12 +40,12 @@ public class FacultyService {
         facultyRepository.save(newFaculty);
     }
     public Faculty getFaculty(long id){
-        logger.info("Faculty found");
+        logger.info("Get faculty : id = {}", id);
         return facultyRepository.findById(id).orElseThrow(
                 () -> new FacultyNotFoundException(id));
     }
     public Faculty removeFaculty(long id){
-        logger.info("Faculty removed");
+        logger.info("Remove faculty : id = {}", id);
         Faculty remoteFaculty = facultyRepository.findById(id).orElseThrow(
                 () -> new FacultyNotFoundException(id));
 
@@ -55,17 +55,29 @@ public class FacultyService {
     }
 
     public Collection<Faculty> findFacultyByNameOrColor(String nameOfColor){
-        logger.info("Faculty found");
+        logger.info("Find faculty by name or color : nameOfColor = {}", nameOfColor);
         return facultyRepository.findByNameIgnoreCaseOrColorIgnoreCase(nameOfColor , nameOfColor);
     }
+
+    public String getMaxLengthNameFaculty(){
+        logger.info("Get max length name faculty");
+        int maxName = 0;
+
+        return facultyRepository.findAll().stream()
+                .map(Faculty::getName)
+                .max(Comparator.comparing(String::length))
+                .orElse("Факультетов не существует");
+
+    }
+
     public Collection<Student> searchForAStudentByFaculty(long id) {
-        logger.info("Student found");
+        logger.info("Get student by id : {}", id);
         return studentRepository.findAllByFaculty_Id(id);
     }
 
 
     public Collection<Faculty> getAllFaculty(){
-        logger.info("Faculty found");
+        logger.info("Get all faculty");
         return Collections.unmodifiableCollection(facultyRepository.findAll()); // создаст неизменяемую копию коллекции
     }
 

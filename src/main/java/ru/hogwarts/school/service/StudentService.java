@@ -68,6 +68,22 @@ public class StudentService {
         return remoteStudent;
 
     }
+
+    public Collection<Student> getSortedName(){
+        logger.info("Retrieving sort name");
+        String firstLetterOfName = "А";
+        return studentRepository.findAll().stream()
+                .filter(student -> student.getName().toUpperCase().startsWith(firstLetterOfName))
+                .sorted(Comparator.comparing(Student::getName))
+                .toList();
+
+    }
+    public OptionalDouble getMiddleAgeStream(){
+        logger.info("Retrieving middle age stream");
+        return studentRepository.findAll().stream()
+                .mapToInt(Student::getAge).average();
+    }
+
     public Collection<Student> getAllStudent(){
         logger.info("Retrieving all students");
         return Collections.unmodifiableCollection(studentRepository.findAll()); // создаст неизменяемую копию листа
@@ -97,5 +113,6 @@ public class StudentService {
         logger.info("Retrieving new five students");
         return studentRepository.getNewFiveStudents();
     }
+
 
 }

@@ -13,6 +13,7 @@ import ru.hogwarts.school.service.StudentService;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.OptionalDouble;
 
 @RestController
 @RequestMapping("/student")
@@ -42,6 +43,15 @@ public class StudentController {
     @DeleteMapping("/{id}")
     public Student removeStudent(@PathVariable Long id){
         return studentService.removeStudent(id);
+    }
+
+    @GetMapping("/sort-name")
+    public Collection<Student> getSortedName(){
+        return studentService.getSortedName();
+    }
+    @GetMapping("/middle-age")
+    public OptionalDouble getMiddleAge(){
+        return studentService.getMiddleAgeStream();
     }
 
     @GetMapping
