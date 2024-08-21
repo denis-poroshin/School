@@ -21,7 +21,11 @@ public class InfoController {
     }
     @GetMapping("/count")
     public Integer getCount(){
-        return infoService.count();
+        return infoService.newCount();
+    }
+    @GetMapping("/time")
+    public String timeCount(){
+        return infoService.timeCount();
     }
 
 }

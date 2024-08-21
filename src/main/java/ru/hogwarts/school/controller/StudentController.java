@@ -104,4 +104,14 @@ public class StudentController {
     public Collection<Student> getNewFiveStudents(){
         return studentService.getNewFiveStudents();
     }
+    @GetMapping("/print-parallel")
+    public void getStudentsPrintParallel(){
+        studentService.getStudentsPrintParallel();
+
+    }
+    @GetMapping("/print-synchronized")
+    public void getStudentsPrintSynchronized(){
+        studentService.getStudentsPrintSynchronized();
+
+    }
 }

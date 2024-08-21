@@ -113,6 +113,36 @@ public class StudentService {
         logger.info("Retrieving new five students");
         return studentRepository.getNewFiveStudents();
     }
+    public void getStudentsPrintParallel(){
+        getAllStudent().stream()
+                .map(Student::getName)
+                .limit(2).
+                forEach(System.out::println);
+
+        Thread thread = new Thread(() -> {
+            getAllStudent().stream()
+                    .map(Student::getName)
+                    .skip(2)
+                    .limit(2)
+                    .forEach(System.out::println);
+        });
+        thread.start();
+
+        Thread thread1 = new Thread(() -> {
+            getAllStudent().stream()
+                    .map(Student::getName)
+                    .skip(4)
+                    .limit(2)
+                    .forEach(System.out::println);
+        });
+        thread1.start();
+
+    }
+    public void getStudentsPrintSynchronized(){
+        synchronized (StudentService.class){
+            getStudentsPrintParallel();
+        }
+    }
 
 
 }
